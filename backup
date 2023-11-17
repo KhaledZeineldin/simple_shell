@@ -1,0 +1,82 @@
+// #include "main.h"
+
+// char ** tokenize_path(char* path){
+
+//     char *path_copy = skip_char(extract_PATH(), 5);  // +5 to skip "PATH="
+//     char *token = strtok(path_copy, ":");
+
+//     while (token != NULL) {
+//         // Check if the input can be executed using this tokenized path
+//         char cmd[strlen(token) + strlen(argv[1]) + 2];  // +2 for / and null terminator
+//         sprintf(cmd, "%s/%s", token, argv[1]);
+
+//         if (access(cmd, X_OK) == 0) {
+//             printf("Executable found at: %s\n", cmd);
+//         }
+
+//         token = strtok(NULL, ":");
+//     }
+
+// }
+
+char ** tokenize_path(){
+char path[50]; 
+int path_index = 0;
+char *path_copy = skip_char(extract_PATH(), 5); 
+char *token = strtok(path_copy, ":");
+ while (token != NULL) {
+        path[path_index] = token;
+        path_index++;
+        token = strtok(NULL, " "); 
+    }
+    path[path_index] = NULL;
+    return path;
+}
+
+
+int main(void){
+    char user_input[1000];
+    char* command;
+    char command_path[300];
+    
+
+    printf("%x", tokenize_path("haha: hoho: hehe"));
+
+    while(true)
+    {
+    if(isatty(STDIN_FILENO)){shell_prompt();}
+    command = get_user_input();
+    if (_strcmp(command, "exit") == 0){break;}
+    if (_strcmp(command, "env") == 0) {_print_env();}
+    if (startswith(command, "/bin/") ){execute_command(command_path);}
+    else{
+    snprintf(command_path, sizeof(command_path), "/bin/%s", command);
+    execute_command(command_path);
+    }
+    free(command);   
+    }
+}
+
+
+char ** tokenize_path(char * command){
+    char *token;
+    char *args[50]; 
+    int arg_count = 0;
+    pid_t child_pid;
+    char cmd[1000];
+    token = strtok(skip_char(extract_PATH(), 5), ":");
+    
+    while (token != NULL) {
+        args[arg_count] = token;
+        arg_count++;
+        token = strtok(NULL, ":");
+        sprintf(cmd, "%s/%s", token, command);
+
+        if (access(cmd, X_OK) == 0) {
+            execute_command(cmd);
+        }
+    }
+    free(token);
+
+    
+}
